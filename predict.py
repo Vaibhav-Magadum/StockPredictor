@@ -74,6 +74,8 @@ testPredict = lstm.predict(X_test)
 plt.plot(y_test.values, color='blue', label='Actual Stock Price')
 plt.plot(testPredict, color='red', label='Predicted Stock Price')
 plt.title('Stock Price Prediction')
+plt.xlabel('Date')
+plt.ylabel('Stock Price')
 plt.show()
 
 # Predicting the stock price for the next day
