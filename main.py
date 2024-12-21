@@ -5,7 +5,7 @@ import streamlit as st
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential
-from keras.layers import LSTM, Dense
+from keras.layers import LSTM, Dense, Dropout, Bidirectional
 
 # Function to fetch stock data
 def fetch_stock_data(stock_name, start_date, end_date):
@@ -38,14 +38,16 @@ def preprocess_and_train_model(data):
     X_train = trainX.reshape(trainX.shape[0], 1, trainX.shape[1])
     X_test = testX.reshape(testX.shape[0], 1, testX.shape[1])
 
-    # Building the LSTM model
+    # Building the LSTM model with Bidirectional layer and Dropout
     lstm = Sequential()
-    lstm.add(LSTM(32, input_shape=(1, trainX.shape[1]), activation='relu', return_sequences=False))
+    lstm.add(Bidirectional(LSTM(64, activation='relu', return_sequences=True, input_shape=(1, trainX.shape[1]))))
+    lstm.add(Dropout(0.2))  # Dropout to reduce overfitting
+    lstm.add(LSTM(32, activation='relu', return_sequences=False))
     lstm.add(Dense(1))
     lstm.compile(optimizer='adam', loss='mean_squared_error')
 
     # Training the model
-    lstm.fit(X_train, y_train, epochs=20, batch_size=8, verbose=1, shuffle=False)
+    lstm.fit(X_train, y_train, epochs=50, batch_size=16, verbose=1, shuffle=False)
 
     # Predicting the stock price
     testPredict = lstm.predict(X_test)
@@ -56,13 +58,13 @@ def preprocess_and_train_model(data):
     next_day_prediction = lstm.predict(next_day)
     predicted_price_next_day = next_day_prediction[0, 0]
 
-    return testPredict, y_test, predicted_price_next_day
+    return predicted_price_next_day, data['Close'].iloc[-1], testPredict, y_test
 
 # Streamlit App
-st.title("Stock Price Analysis and Prediction")
-st.sidebar.header("Stock Data Inputs")
+st.title("Stock Price Prediction")
 
 # User inputs for stock data
+st.sidebar.header("Stock Data Inputs")
 stock_name = st.sidebar.text_input("Stock Symbol (e.g., AAPL)", value="AAPL")
 start_date = st.sidebar.date_input("Start Date", value=pd.to_datetime("2020-01-01"))
 end_date = st.sidebar.date_input("End Date", value=pd.to_datetime("2023-01-01"))
@@ -75,11 +77,11 @@ if st.sidebar.button("Fetch and Predict"):
         if stock_data is not None:
             # Display the fetched data
             st.write("Fetched Stock Data:")
-            st.dataframe(stock_data.head())
+            st.dataframe(stock_data.tail())
 
             # Train and predict stock prices
             try:
-                testPredict, y_test, predicted_price = preprocess_and_train_model(stock_data)
+                predicted_price, actual_price_next_day, testPredict, y_test = preprocess_and_train_model(stock_data)
 
                 # Plot actual vs predicted prices
                 plt.figure(figsize=(10, 6))
@@ -91,8 +93,12 @@ if st.sidebar.button("Fetch and Predict"):
                 plt.legend()
                 st.pyplot(plt)
 
-                # Display the prediction
-                st.success(f"Predicted Stock Price for the Next Day: {predicted_price}")
+                # Display the prediction for the next day
+                st.write(f"Predicted Stock Price for the Next Day: ${predicted_price:.2f}")
+                st.write(f"Actual Stock Price for the Next Day: ${actual_price_next_day:.2f}")
+
+                # Display the prediction error
+                st.write(f"Prediction Error: ${abs(predicted_price - actual_price_next_day):.2f}")
 
             except Exception as e:
                 st.error(f"An error occurred during model training or prediction: {e}")
