@@ -1,26 +1,25 @@
-# Stock Data Predictor
+# Stock Price Analysis and Prediction
 
 ## Overview
 
-The **Stock Data Predictor** is a Python script that allows users to retrieve historical stock data and visualize it using a simple graphical user interface (GUI). The script uses the `yfinance` library to fetch stock data, `seaborn` for plotting, and `PySimpleGUI` for creating the GUI.
+The **Stock Price Analysis and Prediction** application is built using Python and Streamlit to analyze historical stock data and predict the next day's stock price using an LSTM (Long Short-Term Memory) neural network. It provides an interactive interface to fetch stock data, visualize trends, and predict future prices.
 
 ## Features
 
-- Fetches historical stock data from Yahoo Finance.
-- Saves the data to a CSV file.
-- Plots the stock's closing price over a specified date range.
-- Provides a simple GUI for user input.
-- predicts price of next day
+- **Fetch Historical Data**: Retrieve stock data for any company using Yahoo Finance.
+- **Interactive Visualization**: Display and analyze stock trends with actual vs. predicted prices.
+- **LSTM Model for Prediction**: Predict the next day's stock price using machine learning.
+- **User-Friendly Interface**: Utilize Streamlit for an intuitive and interactive user experience.
+- **Customizable Date Range**: Fetch data for any specified time period.
+- **Scalable Framework**: Easily extend the model or interface for additional features like multi-stock comparisons.
 
 ## Requirements
 
-- Python 3.x
-- Libraries: `yfinance`, `pandas`, `seaborn`, `PySimpleGUI`, `matplotlib`
+### Python Version
+- Python 3.7 or higher
 
-You can install the required libraries using `pip`:
+### Required Libraries
+Install the required Python libraries using pip:
 
 ```sh
-pip install yfinance pandas seaborn PySimpleGUI matplotlib
-
-
-
+pip install pandas numpy yfinance streamlit matplotlib sklearn keras
